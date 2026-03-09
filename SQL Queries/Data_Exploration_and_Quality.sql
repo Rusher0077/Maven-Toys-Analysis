@@ -1,106 +1,89 @@
 -- =============================================
 -- Data_Exploration_and_Quality.sql
--- Maven Toys - First script
--- Goal: Understand the data + basic quality checks
+-- Maven Toys - Initial data check
+-- Goal: Confirm import worked, understand shape, spot obvious problems early
 -- =============================================
 
--- Section 1: Row counts & basic shape
--- WHY: Knowing exact row counts confirms successful import & gives scale
--- WHY: Helps detect if file was truncated or double-imported
+-- 1. Row counts – make sure nothing got lost or duplicated during import
+SELECT 'sales'     AS table_name, COUNT(*) AS row_count FROM sales
+UNION ALL
+SELECT 'inventory' AS table_name, COUNT(*) FROM inventory
+UNION ALL
+SELECT 'products'  AS table_name, COUNT(*) FROM products
+UNION ALL
+SELECT 'stores'    AS table_name, COUNT(*) FROM stores;
 
-select 'sales' as table_name, count(*) from sales
-union all
-select 'inventory', count(*) from inventory
-union all
-select 'products', count(*) from products
-union all
-select 'stores', count(*) from stores
+-- 2. Quick peek at actual rows (helps catch weird formatting or unexpected NULLs)
+SELECT TOP 10 * FROM sales     ORDER BY Date DESC;
+SELECT TOP 10 * FROM inventory ORDER BY Stock_On_Hand DESC;
+SELECT TOP 10 * FROM products;
+SELECT TOP 10 * FROM stores;
 
+-- 3. Basic range & cardinality checks
+-- Sales period & how many unique stores/products we actually have
+SELECT  
+    MIN(Date)                  AS earliest_date,
+    MAX(Date)                  AS latest_date,
+    DATEDIFF(DAY, MIN(Date), MAX(Date)) + 1 AS days_covered,
+    COUNT(DISTINCT Store_ID)   AS unique_stores,
+    COUNT(DISTINCT Product_ID) AS unique_products
+FROM sales;
 
--- Section 2: Sample rows
--- WHY: See if values look reasonable, spot formatting issues, unexpected NULLs
---------------------------------------------------
-select top 10 * from sales
-select top 10 * from inventory
-select top 10 * from products
-select top 10 * from stores
+-- Inventory snapshot stats
+SELECT  
+    COUNT(DISTINCT Store_ID)   AS unique_stores,
+    COUNT(DISTINCT Product_ID) AS unique_products,
+    MIN(Stock_On_Hand)         AS lowest_stock_seen,
+    MAX(Stock_On_Hand)         AS highest_stock_seen,
+    AVG(Stock_On_Hand)         AS avg_stock
+FROM inventory;
 
--- Section 3: Date range & key fields
--- WHY: Tells us analysis period, how many unique stores/products really exist
--- WHY: Helps detect data entry errors (e.g. future dates, negative IDs)
---------------------------------------------------
+-- Products price range & categories
+SELECT  
+    COUNT(DISTINCT Product_ID)     AS unique_products,
+    COUNT(DISTINCT Product_Category) AS unique_categories,
+    MIN(Product_Price)             AS cheapest,
+    MAX(Product_Price)             AS most_expensive
+FROM products;
 
--- sales
-select 
-	min(date) as earliest_sales_date,
-	max(date) as latest_sales_date,
-	datediff(day, min(date), max(date)) + 1 as sales_period,
-	count(distinct store_id) as total_stores,
-	count(distinct product_id) as total_products
-from sales
+-- Stores by location type + opening dates
+SELECT  
+    Store_Location,
+    COUNT(*)                  AS store_count,
+    MIN(Store_Open_Date)      AS earliest_opening,
+    MAX(Store_Open_Date)      AS latest_opening
+FROM stores
+GROUP BY Store_Location;
 
--- inventory
+-- 4. Quick data quality flags – things that break analysis if present
 
-select 
-	count(distinct store_id) as unique_stores_in_inventory,
-	count(distinct product_id) as unique_products_in_inventory,
-	max(stock_on_hand) as max_stocks_observed,
-	min(stock_on_hand) as min_stocks_observed,
-	avg(stock_on_hand) as avg_stocks_observed
-from inventory
+-- NULLs in key sales columns
+SELECT  
+    SUM(CASE WHEN Sale_ID    IS NULL THEN 1 ELSE 0 END) AS null_sale_id,
+    SUM(CASE WHEN Date       IS NULL THEN 1 ELSE 0 END) AS null_date,
+    SUM(CASE WHEN Store_ID   IS NULL THEN 1 ELSE 0 END) AS null_store,
+    SUM(CASE WHEN Product_ID IS NULL THEN 1 ELSE 0 END) AS null_product,
+    SUM(CASE WHEN Units      IS NULL THEN 1 ELSE 0 END) AS null_units
+FROM sales;
 
--- products
-select 
-	count(distinct product_id) as total_unique_products,
-	count(distinct product_category) as total_category,
-	max(product_price) as most_expensive_price,
-	min(product_price) as cheapest_price
-from products
+-- Duplicate Sale_IDs? (should be unique)
+SELECT Sale_ID, COUNT(*) AS occurrences
+FROM sales
+GROUP BY Sale_ID
+HAVING COUNT(*) > 1;
 
--- stores
+-- Orphan sales – references to non-existing stores/products
+SELECT DISTINCT s.Store_ID
+FROM sales s
+LEFT JOIN stores st ON st.Store_ID = s.Store_ID
+WHERE st.Store_ID IS NULL;
 
-select 
-	store_location,
-	count(store_location) as store_counts,
-	min(store_open_date) as oldest_opening_date,
-	max(store_open_date) as newest_opening_date
-from stores
-group by store_location
+SELECT DISTINCT s.Product_ID
+FROM sales s
+LEFT JOIN products p ON p.Product_ID = s.Product_ID
+WHERE p.Product_ID IS NULL;
 
--- Section 4: Date quality - Nulls, Duplicates, Referential integrity
--- WHY: These checks catch the most common serious problems before analysis
---------------------------------------------------
-
--- null check
-select 
-	sum(case when sale_id is null then 1 else 0  end) as n_sale_id,
-	sum(case when date is null then 1 else 0 end) as n_date,
-	sum(case when store_id is null then 1 else 0 end) as n_store_id,
-	sum(case when product_id is null then 1 else 0 end) as n_product_id,
-	sum(case when units is null then 1 else 0 end) as n_unit
-from sales
-
-
--- Duplicate sales? (Sale_ID should be unique)
-select
-	sale_id,
-	count(sale_id)
-from sales
-group by sale_id
-having count(sale_id) > 1
-
--- Referential integrity – sales should only contain existing stores & products
--- WHY: If this returns rows → data quality problem (orphan records)
-
-select
-	distinct s.store_id
-from sales s
-left join stores st on st.store_id = s.Store_ID
-where st.Store_ID is null
-
-select
-	distinct s.product_id
-from sales s
-left join products p on p.Product_ID = s.Product_ID
-where p.Product_ID is null
-
+-- Optional quick check: negative / zero units (shouldn't happen)
+SELECT *
+FROM sales
+WHERE Units <= 0;
