@@ -5,6 +5,8 @@
 
 # Excel files and temp files
 *.xlsx
+!Dashboard/Maven Toys Sale Analysis.xlsx
+
 ~$*.xlsx           # Excel temporary lock files
 *.xlsm
 *.xltx
@@ -14,8 +16,8 @@
 temp/
 backup/
 
-# General junk (optional but nice)
-.DS_Store          # Mac
-Thumbs.db          # Windows
+# General junk
+.DS_Store
+Thumbs.db
 *.bak
 *.tmp
