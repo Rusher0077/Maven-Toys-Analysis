@@ -1,7 +1,7 @@
 # Maven Toys Sales Analysis
 ### End-to-end sales & inventory analysis of Maven Toys (Mexico) using SQL and Power BI
 
-https://github.com/Rusher0077/Maven-Toys-Analysis/raw/main/Dashboard/Dashboard_Preview.mp4
+![Dashboard Preview](Dashboard/Dashboard_Preview.gif)
 
 ---
 
@@ -33,31 +33,37 @@ The sales table is the fact table at transaction grain. SQL was used to clean, a
 ## Key Business Insights
 
 **1. Revenue grew 30.9% but margin fell 11.3%**
+
 Maven matched its entire 2022 revenue in just 9 months of 2023. But gross margin dropped from 29.3% to 26.2%. The growth is real but the profitability isn't keeping up.
 
 > Shift product mix toward higher margin categories before the gap widens further.
 
 **2. Toys drives volume, Electronics drives margin**
+
 Toys accounts for 35.26% of revenue but carries only 21.2% margin. Electronics sits at 15.55% revenue share but leads margin at 44.6%. The company's biggest category is also its least profitable one.
 
 > Electronics needs a deliberate growth strategy, not just shelf space.
 
 **3. Colorbuds is the most balanced product in the entire portfolio**
+
 Lego Bricks gets all the attention at $2.4M revenue but only returns $299K in gross profit. Colorbuds sits at $1.56M revenue with $835K gross profit and a 53.4% margin. It is the only product in the High Rev, High Margin quadrant.
 
 > Colorbuds deserves hero product treatment.
 
 **4. Airport stores are Maven's most efficient format and nobody is talking about it**
+
 4 Airport stores generate $1M revenue at 29.3% margin, the best margin of any format. Their secret is a naturally Electronics-heavy product mix and a less price sensitive customer base.
 
 > Study the Airport model before expanding more Downtown locations.
 
 **5. Día del Niño explains the April-June sales surge**
+
 The Toys heatmap peaks from March through June every year. This maps directly onto Día del Niño (April 30), one of Mexico's biggest retail events which generated $1.9B nationally in 2024. This is predictable and plannable.
 
 > Start building Toys inventory in February. Stores that stock out early don't recover those sales.
 
 **6. High revenue rank doesn't mean a store is healthy**
+
 Guadalajara 3 is ranked 2nd across 50 stores at $449K revenue but sits 1% below company margin average and has 7 products at stockout risk including its own top seller Lego Bricks with 3 days of stock left.
 
 > Revenue rank alone is not enough. Margin and stock health need equal attention.
@@ -79,7 +85,7 @@ Guadalajara 3 is ranked 2nd across 50 stores at $449K revenue but sits 1% below 
 
 ![Relationship Model](Dashboard/Screenshots/Relationship_model.png)
 
-The model follows a star schema core with `Fact_Sales` at the center, connected to `Dim_Date`, `DATA_product` and `DATA_store` via many-to-one relationships. Two supplementary tables, `DATA_inventory` and `DATA_velocity`, extend the model through `DATA_store` to support stockout risk and product velocity analysis independently of the sales fact table.
+The model follows a star schema core with `Fact_Sales` at the center, connected to `Dim_Date`, `DATA_product` and `DATA_store` via many-to-one relationships. Two supplementary tables `DATA_inventory` and `DATA_velocity` extend the model through `DATA_store` to support stockout risk and product velocity analysis independently of the sales fact table.
 
 - **Dim_Date** — date spine with fiscal year, day type and month fields enabling time intelligence across the dashboard
 - **DATA_product** — product attributes enriched with calculated columns (margin %, revenue rank, performance group) for scatter plot and ranking visuals
@@ -97,6 +103,7 @@ Maven-Toys-Analysis/
 │
 ├── Dashboard/
 │   ├── Maven_Toys_Analysis.pbix
+|   ├── Dashboard_Preview.gif
 │   └── Screenshots/
 │       ├── 01_Overview.png
 │       ├── 02_Product_Performance.png
