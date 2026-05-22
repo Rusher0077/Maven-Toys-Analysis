@@ -1,5 +1,7 @@
 # Maven Toys Sales Analysis
 ### End-to-end sales & inventory analysis of Maven Toys (Mexico) using SQL and Power BI
+![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
+
 
 ![Dashboard Preview](Dashboard/Dashboard_Preview.gif)
 
