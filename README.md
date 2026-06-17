@@ -15,7 +15,7 @@ The goal was not just building a dashboard, but also to find where the business 
 
 The full findings are documented in the [Business Intelligence Report](Maven%20Sales%20Analysis%20Business%20Report.pdf).
 
-Live Dashboard — [View Interactive Dashboard](https://app.powerbi.com/view?r=eyJrIjoiM2EwNjBjZjQtMmIwOS00OTk1LWFiYzgtNjZmZDA3NDRkNTg4IiwidCI6IjlhMjdkMTllLTQ0MjEtNDRmYi1hY2Q4LWZkNTZjOWZiYTJkOCIsImMiOjEwfQ%3D%3D)
+Live Dashboard — [View Interactive Dashboard](https://app.fabric.microsoft.com/view?r=eyJrIjoiM2EwNjBjZjQtMmIwOS00OTk1LWFiYzgtNjZmZDA3NDRkNTg4IiwidCI6IjlhMjdkMTllLTQ0MjEtNDRmYi1hY2Q4LWZkNTZjOWZiYTJkOCIsImMiOjEwfQ%3D%3D&pageName=79ba1eb3622c4e094ba8)
 
 ---
 
